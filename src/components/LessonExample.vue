@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { buildPreviewFromFiles } from '../utils/buildVuePreview.js'
 
 const props = defineProps({
   description: { type: String, required: true },
@@ -7,6 +8,8 @@ const props = defineProps({
   html: { type: String, default: '' },
   css: { type: String, default: '' },
   js: { type: String, default: '' },
+  files: { type: Array, default: () => [] },
+  previewHtml: { type: String, default: '' },
   category: { type: String, default: 'html' },
 })
 
@@ -15,8 +18,32 @@ const isStyleLesson = computed(() =>
 )
 
 const isJsLesson = computed(() => props.category === 'js')
+const isVueLesson = computed(() => props.category === 'vue')
+const isEchartsLesson = computed(() => props.category === 'echarts')
+const isDatavLesson = computed(() => props.category === 'datav')
+const hasProjectFiles = computed(() =>
+  (isVueLesson.value || isEchartsLesson.value || isDatavLesson.value) && props.files.length > 0,
+)
+
+const builtPreview = computed(() => {
+  if (isVueLesson.value || isEchartsLesson.value) {
+    return buildPreviewFromFiles(props.files) || ''
+  }
+  return ''
+})
 
 const displayCode = computed(() => {
+  if (hasProjectFiles.value) {
+    return props.files
+      .map((f) => `// ========== ${f.name} ==========\n${f.content}`)
+      .join('\n\n')
+  }
+  if (isEchartsLesson.value) {
+    return `<!-- HTML -->\n${props.html}\n\n// ECharts\n${props.js}`
+  }
+  if (isVueLesson.value) {
+    return `<!-- HTML -->\n${props.html}\n\n// Vue (CDN 演示)\n${props.js}`
+  }
   if (isJsLesson.value) {
     return `<!-- HTML -->\n${props.html}\n\n// JavaScript\n${props.js}`
   }
@@ -27,6 +54,12 @@ const displayCode = computed(() => {
 })
 
 const fileName = computed(() => {
+  if (hasProjectFiles.value) {
+    return props.files.map((f) => f.name.split('/').pop()).join(' + ')
+  }
+  if (isDatavLesson.value) return 'PanelDemo.vue + DataV'
+  if (isEchartsLesson.value) return 'ChartDemo.vue + echarts'
+  if (isVueLesson.value) return 'App.vue + components'
   if (isJsLesson.value) return 'example.html + script.js'
   if (isStyleLesson.value) return 'example.html + style.css'
   return 'example.html'
@@ -49,6 +82,33 @@ const previewHtml = computed(() => {
     input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin: 4px 4px 4px 0; }
     ul { padding-left: 20px; }
   `
+
+  if (props.previewHtml) return props.previewHtml
+  if (builtPreview.value) return builtPreview.value
+
+  if (isEchartsLesson.value) {
+    return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <style>${baseStyle} #chart { width: 100%; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"><\/script>
+</head>
+<body>${props.html}<script>${props.js}<\/script></body>
+</html>`
+  }
+
+  if (isVueLesson.value && props.html && props.js) {
+    return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <style>${baseStyle}</style>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>
+</head>
+<body>${props.html}<script>${props.js}<\/script></body>
+</html>`
+  }
 
   if (isJsLesson.value) {
     return `<!DOCTYPE html>

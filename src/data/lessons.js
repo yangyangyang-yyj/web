@@ -1,6 +1,15 @@
 import { cssLessons } from './cssLessons.js'
 import { css3Lessons } from './css3Lessons.js'
 import { jsLessons } from './jsLessons.js'
+import { vueLessons } from './vueLessons.js'
+import { echartsLessons } from './echartsLessons.js'
+import { datavLessons } from './datavLessons.js'
+import { interviewLessons } from './interviewLessons.js'
+import { mergeKnowledge } from './knowledge/mergeKnowledge.js'
+import { htmlKnowledge } from './knowledge/htmlKnowledge.js'
+import { cssKnowledge } from './knowledge/cssKnowledge.js'
+import { css3Knowledge } from './knowledge/css3Knowledge.js'
+import { jsKnowledge } from './knowledge/jsKnowledge.js'
 
 export const htmlLessons = [
   {
@@ -724,4 +733,13 @@ export const htmlLessons = [
   },
 ]
 
-export const lessons = [...htmlLessons, ...cssLessons, ...css3Lessons, ...jsLessons]
+export const lessons = [
+  ...mergeKnowledge(htmlLessons, htmlKnowledge),
+  ...mergeKnowledge(cssLessons, cssKnowledge),
+  ...mergeKnowledge(css3Lessons, css3Knowledge),
+  ...mergeKnowledge(jsLessons, jsKnowledge),
+  ...vueLessons,
+  ...echartsLessons,
+  ...datavLessons,
+  ...interviewLessons,
+]

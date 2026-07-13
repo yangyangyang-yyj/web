@@ -1,18 +1,25 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   lessons: { type: Array, required: true },
-  activeId: { type: String, required: true },
 })
 
-const emit = defineEmits(['select'])
+const route = useRoute()
+const router = useRouter()
+
+const activeId = computed(() => route.params.id)
 
 const groups = [
   { key: 'html', label: 'HTML', dotClass: 'html-dot' },
   { key: 'css', label: 'CSS', dotClass: 'css-dot' },
   { key: 'css3', label: 'CSS3', dotClass: 'css3-dot' },
   { key: 'js', label: 'JavaScript', dotClass: 'js-dot' },
+  { key: 'vue', label: 'Vue', dotClass: 'vue-dot' },
+  { key: 'echarts', label: 'ECharts', dotClass: 'echarts-dot' },
+  { key: 'datav', label: 'DataV', dotClass: 'datav-dot' },
+  { key: 'interview', label: '面试题', dotClass: 'interview-dot' },
 ]
 
 const expanded = ref({
@@ -20,6 +27,10 @@ const expanded = ref({
   css: false,
   css3: false,
   js: false,
+  vue: false,
+  echarts: false,
+  datav: false,
+  interview: false,
 })
 
 const lessonsByCategory = computed(() => {
@@ -36,7 +47,7 @@ function toggleGroup(key) {
 
 function selectLesson(id, category) {
   expanded.value[category] = true
-  emit('select', id)
+  router.push({ name: 'lesson', params: { id } })
 }
 </script>
 
@@ -48,7 +59,7 @@ function selectLesson(id, category) {
       <div class="logo-mark">&lt;/&gt;</div>
       <div>
         <h1>前端学习手册</h1>
-        <p>HTML · CSS · CSS3 · JS</p>
+        <p>HTML · CSS · JS · Vue · ECharts · DataV</p>
       </div>
     </div>
 
@@ -225,6 +236,10 @@ function selectLesson(id, category) {
 .css-dot { background: #7c3aed; }
 .css3-dot { background: #c084fc; }
 .js-dot { background: #f59e0b; }
+.vue-dot { background: #42b883; }
+.echarts-dot { background: #e4393c; }
+.datav-dot { background: #06b6d4; }
+.interview-dot { background: #f59e0b; }
 
 .count {
   margin-left: auto;
